@@ -1,43 +1,35 @@
-import { createServer } from "http";
 import express from "express";
-import { Server } from "socket.io";
+import {createServer} from "node:http";
 import cors from "cors";
 
-// Express app for middleware support
+import dotenv from "dotenv";
+import { Server } from "socket.io";
+dotenv.config();
+
 const app = express();
 
-// CORS middleware
 app.use(cors());
 
-// JSON middleware (for REST routes if needed)
 app.use(express.json());
 
-// HTTP server using Express
-const httpServer = createServer(app);
+const port = process.env.PORT;
 
-// Socket.IO server with CORS options
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*", // Set specific origin in production
-    methods: ["GET", "POST"]
+const server = createServer(app);
+
+const io = new Server(server,{
+  cors : {
+    origin : "*",
+    methods : ["GET","POST"]
   }
 });
 
-io.on("connection", (socket) => {
-  console.log("A new user has been connected:", socket.id);
+io.on("connection",(socket)=>{
+  console.log("user is connected with the socket id :",socket.id);
+  socket.on("disconnect",()=>{
+    console.log(`user ${socket.id} got disconnected`);
+  })
+})
 
-  // Example socket event
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
-
-// Health check route (optional)
-app.get("/", (req, res) => {
-  res.send({ message: "Socket.IO server is running!" });
-});
-
-const PORT = 3000;
-httpServer.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+server.listen(4000,()=>{
+  console.log("server is running at server of port 4000");
+})
