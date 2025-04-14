@@ -1,39 +1,30 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
+import { useRef } from 'react'
 import './App.css'
-import { useRef } from 'react';
 import { useEffect } from 'react';
+import { io } from 'socket.io-client';
 import { useState } from 'react';
 
-function App() {
-  const [recentMessage , setRecentMessage] = useState("");
-  const message = useRef("");
-  const ws = useRef(null);
 
-  function updateMessage(newMessage) {
-    message.current = newMessage;
-  }
-  function SendData() {
-    setRecentMessage(message.current);
-    ws.current.send(message.current);
-  }
+function App() {
+  const ws = useRef("");
+  const message = useRef("");
+  const [recentMessage,setMessage] = useState("");
 
   useEffect(()=>{
-     ws.current = new WebSocket(`ws://localhost:8080`);
-    ws.current.onmessage = (event) =>{
-      message.current = event.data;
-    }
-    ws.current.onerror = (error) =>{
-      console.error("Websocket Error:",error);
-    }
-    ws.current.onclose = () =>{
-      console.log("Connection Closed");
-    }
-    return () =>{
-      ws.current.close
-    }
-  })
+        const ClientSocket = io("ws://localhost:3000");
+        ClientSocket.on("connection", (socket) =>{
+          console.log("A user has been added:",socket.id)
+        }) 
+  },[])
 
+  function updateMessage(newMessage){
+    message.current = newMessage;
+  }
+
+  function SendData() {
+    setMessage(message.current);
+  }
   return (
     <div className="bg-gray-100">
          <div className="container mx-auto p-4">
