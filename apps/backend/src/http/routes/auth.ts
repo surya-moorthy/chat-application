@@ -1,13 +1,11 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
 export const authRoutes = Router();
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import z from "zod";
 import {prisma} from "@repo/db/client"
+import { hashPassword, verifyPassword } from "../verification/pass";
 dotenv.config();
-
-
 
 const jwtsecret : string = process.env.JWT_SECRET || "keysecret";
 
@@ -35,9 +33,7 @@ authRoutes.post('/register',async (req,res)=>{
    }
    const {username,password,email} = req.body;
    try {
-      
-      const salt = await  bcrypt.genSalt(10);
-      const hashedpass = await bcrypt.hash(password,salt);
+      const hashedpass = await hashPassword(password);
       const userResponse = await prisma.user.create({
          data : {
             username : username,
@@ -46,7 +42,6 @@ authRoutes.post('/register',async (req,res)=>{
          }
       }
       )
-
       res.status(200).json({
          msg : "User created Successfully",
          response : userResponse
@@ -84,7 +79,7 @@ authRoutes.post("/login",async (req,res)=>{
          return
       }
   
-      const passverify = bcrypt.compare(password,user?.password as string);
+      const passverify = verifyPassword(password,user?.password as string);
       if (!passverify) {
          res.status(401).json({
             msg : "Password Invalid"
@@ -122,8 +117,7 @@ authRoutes.post("/password/reset",async (req,res)=>{
    type resetRequest = z.infer<typeof ResetSchema>;
    const {email,newpassword} = req.body as resetRequest;
    try {
-      const salt = await  bcrypt.genSalt(10);
-      const hashedpass = await bcrypt.hash(newpassword,salt);
+      const  hashedpass = await hashPassword(newpassword);
       await prisma.user.update({
          where : {
             email : email

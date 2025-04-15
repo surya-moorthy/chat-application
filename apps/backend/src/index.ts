@@ -4,6 +4,7 @@ import cors from "cors";
 
 import dotenv from "dotenv";
 import { Server } from "socket.io";
+import { routes } from "./http/routes/routes";
 dotenv.config();
 
 const app = express();
@@ -16,19 +17,7 @@ const port = process.env.PORT;
 
 const server = createServer(app);
 
-const io = new Server(server,{
-  cors : {
-    origin : "*",
-    methods : ["GET","POST"]
-  }
-});
-
-io.on("connection",(socket)=>{
-  console.log("user is connected with the socket id :",socket.id);
-  socket.on("disconnect",()=>{
-    console.log(`user ${socket.id} got disconnected`);
-  })
-})
+app.use("/api/v1",routes)
 
 server.listen(4000,()=>{
   console.log("server is running at server of port 4000");
