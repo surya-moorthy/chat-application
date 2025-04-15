@@ -4,8 +4,10 @@ export const authRoutes = Router();
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import z from "zod";
-
+import {prisma} from "@repo/db/client"
 dotenv.config();
+
+
 
 const jwtsecret : string = process.env.JWT_SECRET || "keysecret";
 
@@ -39,7 +41,7 @@ authRoutes.post('/register',async (req,res)=>{
       const userResponse = await prisma.user.create({
          data : {
             username : username,
-            password_hash : hashedpass,
+            password : hashedpass,
             email : email
          }
       }
@@ -82,7 +84,7 @@ authRoutes.post("/login",async (req,res)=>{
          return
       }
   
-      const passverify = bcrypt.compare(password,user?.password_hash as string);
+      const passverify = bcrypt.compare(password,user?.password as string);
       if (!passverify) {
          res.status(401).json({
             msg : "Password Invalid"
@@ -127,7 +129,7 @@ authRoutes.post("/password/reset",async (req,res)=>{
             email : email
          },
          data : {
-            password_hash : hashedpass
+            password : hashedpass
          }
       })
       res.status(200).json({ msg : "Password reset Successfully"})
