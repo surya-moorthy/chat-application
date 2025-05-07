@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/http/middleware/usermiddleware.ts","./src/http/routes/auth.ts","./src/http/routes/friend.ts","./src/http/routes/routes.ts","./src/http/verification/pass.ts"],"version":"5.8.2"}
+{"root":["./src/index.ts","./src/http/middleware/usermiddleware.ts","./src/http/routes/auth.ts","./src/http/routes/chat.ts","./src/http/routes/friend.ts","./src/http/routes/routes.ts","./src/http/verification/pass.ts","./src/ws/connect.ts"],"version":"5.8.2"}

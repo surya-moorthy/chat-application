@@ -35,6 +35,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.9
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -56,6 +59,9 @@ importers:
       socket.io:
         specifier: ^4.8.1
         version: 4.8.1
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -862,6 +868,9 @@ packages:
 
   '@types/tinycolor2@1.4.6':
     resolution: {integrity: sha512-iEN8J0BoMnsWBqjVbWH/c0G0Hh7O21lpR2/+PrvAVgWdzL7eexIFm4JN/Wn10PTcmNdtS6U67r499mlWMXOxNw==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@typescript-eslint/eslint-plugin@8.29.0':
     resolution: {integrity: sha512-PAIpk/U7NIS6H7TEtN45SPGLQaHNgB7wSjsQV/8+KYokAb2T/gloOA/Bee2yd4/yKVhPKe5LlaUGhAZk5zmSaQ==}
@@ -2988,6 +2997,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.18.1:
+    resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xmlhttprequest-ssl@2.1.2:
     resolution: {integrity: sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ==}
     engines: {node: '>=0.4.0'}
@@ -3630,6 +3651,10 @@ snapshots:
       '@types/node': 22.14.0
 
   '@types/tinycolor2@1.4.6': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.14.0
 
   '@typescript-eslint/eslint-plugin@8.29.0(@typescript-eslint/parser@8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.2))(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.2)':
     dependencies:
@@ -6160,6 +6185,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.17.1: {}
+
+  ws@8.18.1: {}
 
   xmlhttprequest-ssl@2.1.2: {}
 
