@@ -8,90 +8,79 @@ interface User {
 }
 
 export class Chat {
-     private roomId : string;
+    private rooms: Map<string, Set<User>> = new Map();
      private userManager: UserManager;
 
-     constructor(roomId : string,userManager: UserManager){
-        this.roomId = roomId; 
+     constructor(rooms : Map<string,Set<User>>,userManager: UserManager){
+        this.rooms = rooms; 
         this.userManager = userManager;
      }
-     CreateChat(user: User , user2 : string,name : string){
-     function generateRoomId(length: number): string {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let roomId = '';
-            
-            for (let i = 0; i < length; i++) {
-              const randomIndex = Math.floor(Math.random() * characters.length);
-              roomId += characters[randomIndex];
-            }
-            
-            return roomId;
-          }
-         user.socket.on("message",(message)=>{
-            try {
-                const data = JSON.parse(message.toString());
-                if(data.type == "createChat"){
-                    const roomId = generateRoomId(16);
-                    this.roomId = roomId;
-                     const response = {
-                        type : "JoinChat",
-                        UserCreatedChat : user.username,
-                        UserJoinedChat : user2,
-                     }
-                     user.socket.send(JSON.stringify(response))
-                }
-              
-            }catch(error){
-                console.error("Invalid JSON received:",message);
-                user.socket.send(JSON.stringify({
-                    type: "error",
-                    message: "Invalid JSON format"
-                }));
-            }
-         })
-     }
-     JoinChat(user: User , name : string){
-         user.socket.on("message",(message)=>{
-            try {
-                const data = JSON.parse(message.toString());
-                if(data.type == "joinChat"){
-                    const roomId = this.roomId
-                     const response = {
-                        type : "joined successfully",
-                        roomId : roomId
-                     }
-                     user.socket.send(JSON.stringify(response))
-                }
 
-            }catch(error){
-                console.error("Invalid JSON received:",message);
-                user.socket.send(JSON.stringify({
-                    type: "error",
-                    message: "Invalid JSON format"
-                }));
-            }
-         })
-     }
-     sendChat(user : User) {
-         user.socket.on("message",(message)=>{
+     public handleMessages(user: User) {
+        user.socket.on("message", (msg) => {
+            let data;
             try {
-                const data = JSON.parse(message.toString());
-            if(data.type === "sendData"){
-                const response = {
-                    type : "receiveData",
-                    message : data.paload 
-                }
-                user.socket.send(JSON.stringify(response))
+                data = JSON.parse(msg.toString());
+            } catch (err) {
+                return user.socket.send(JSON.stringify({ type: "error", message: "Invalid JSON" }));
             }
-            }catch(error){
-                console.error("Invalid JSON received:",message);
-                user.socket.send(JSON.stringify({
-                    type: "error",
-                    message: "Invalid JSON format"
-                }));
+
+            switch (data.type) {
+                case "createChat":
+                    this.CreateChat(user, data.user2);
+                    break;
+                case "joinChat":
+                    this.JoinChat(user, data.roomId);
+                    break;
+                case "sendData":
+                    this.SendChat(user, data.message);
+                    break;
+                default:
+                    user.socket.send(JSON.stringify({ type: "error", message: "Unknown message type" }));
             }
-         })
-     }
+        });
+    }
+    private generateRoomId(length: number): string {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let roomId = '';
+        
+        for (let i = 0; i < length; i++) {
+          const randomIndex = Math.floor(Math.random() * characters.length);
+          roomId += characters[randomIndex];
+        }
+        
+        return roomId;
+      }
+    
+      private CreateChat(user: User, user2: string) {
+        const roomId = this.generateRoomId(16);
+        this.rooms.set(roomId, new Set([user]));
+        this.userManager.setUserSocket(user.username, user.userId, user.socket);
+        user.socket.send(JSON.stringify({ type: "JoinChat", roomId, createdBy: user.username, invited: user2 }));
+    }
+
+    private JoinChat(user: User, roomId: string) {
+        const room = this.rooms.get(roomId);
+        if (room) {
+            room.add(user);
+            this.userManager.setUserSocket(user.username, user.userId, user.socket);
+            user.socket.send(JSON.stringify({ type: "joined", roomId }));
+        } else {
+            user.socket.send(JSON.stringify({ type: "error", message: "Room not found" }));
+        }
+    }
+
+    private SendChat(sender: User, message: string) {
+        const roomId = [...this.rooms.entries()].find(([_, users]) => users.has(sender))?.[0];
+        if (!roomId) return;
+
+        const roomUsers = this.rooms.get(roomId);
+        roomUsers?.forEach((user) => {
+            if (user !== sender) {
+                user.socket.send(JSON.stringify({ type: "receiveData", message }));
+            }
+        });
+    }
      receiveChat(user : User) {
         user.socket.on("message",(message)=>{
              try {
