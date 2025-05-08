@@ -15,7 +15,7 @@ export default function Chatrewrite() {
           <h2 className="p-4 text-3xl w-full">
                 Chat
           </h2>
-          <div className=" w-full max-w-2xl h-3/4 bg-white">
+          <div className=" flex flex-col w-full max-w-2xl h-3/4 bg-white">
                <div className="flex-1 overflow-y-auto mb-2 space-y-2 p-3">
                 {messages.map((message,idx)=>{
                         return (
