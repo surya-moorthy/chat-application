@@ -1,15 +1,9 @@
 import { WebSocketServer } from "ws";
+import { wss } from "..";
+import { Chat } from "./Chat";
+import { UserManager } from "./User";
 
-const wss = new WebSocketServer({
-    port : 8080,
-    host : "localhost",
-    path : `/chat`,
-    verifyClient: (info, done) => {
-      console.log('Incoming connection from origin:', info.origin);
-      done(true); // Accept connection
-    },
-})
-
+const user = new UserManager();
 wss.on("connection",async (socket)=>{
     socket.on('error', console.error);
     socket.on('message', function message(data, isBinary) {

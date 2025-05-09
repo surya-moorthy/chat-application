@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function Chatrewrite() {
+export default function Chat() {
   const [input,setInput] = useState("")
   const [messages,setMessages] = useState([]);
 

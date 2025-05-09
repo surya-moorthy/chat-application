@@ -86,6 +86,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.4
         version: 4.1.4
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.21.0
