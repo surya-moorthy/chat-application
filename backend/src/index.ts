@@ -25,6 +25,11 @@ const handleMessage = (bytes : WebSocket.RawData, uuid : string) => {
    const user = users[uuid];
    user.state = data;
 
+   if (data.type == "join_room") {
+       
+   }
+   else if (data.type == "")
+
    broadcast();
    
 }
@@ -39,6 +44,8 @@ const handleClose = (uuid : string) => {
 
 wsServer.on("connection",(connection , request)=>{
     const {username} = url.parse(request.url as string, true).query;
+    const protocol = request.headers['sec-websocket-protocol'];
+    console.log("protocol:",protocol);
     const uuid = uuidv4()
     console.log(username);
     console.log(uuid);
@@ -48,6 +55,22 @@ wsServer.on("connection",(connection , request)=>{
         username,
         state : { }
     }
+
+    
+    server.on('upgrade', (req, socket, head) => {
+    const protocols = req.headers['sec-websocket-protocol']; 
+    const selected = protocols?.split(',').map(p => p.trim()).includes('json') ? 'json' : null;
+      wsServer.handleUpgrade(req, socket, head, (ws) => {
+      ws.protocol = selected as string;
+      wsServer.emit('connection', ws, req);
+
+    socket.write(`HTTP/1.1 101 Switching Protocols\r\n` +
+        `Upgrade: websocket\r\n` +
+        `Connection: Upgrade\r\n` +
+        `Sec-WebSocket-Protocol: ${selected}\r\n` +
+        `\r\n`);
+  });
+    });
 
     connection.on("message",message => handleMessage(message,uuid));
     connection.on("close",()=>handleClose(uuid));
