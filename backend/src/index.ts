@@ -3,78 +3,81 @@ import {createServer} from "http";
 import WebSocket ,{ WebSocketServer} from "ws";
 
 import url from "url";
+import { handleConnection } from "./ws/connect";
 const uuidv4 = require("uuid").v4;
 
 const app = express();
 const server = createServer(app);
 const wsServer = new WebSocketServer({ server });
 
-const connections: { [uuid: string]: WebSocket } = {};
-const users: { [uuid: string]: { username: string | string[] | undefined; state: object } } = {};
+wsServer.on("connection",handleConnection);
 
-const broadcast = () =>{
-    Object.keys(connections).forEach(uuid => {
-        const connection = connections[uuid];
-        const message = JSON.stringify(users);
-        connection.send(message);
-    })
-}
+// const connections: { [uuid: string]: WebSocket } = {};
+// const users: { [uuid: string]: { username: string | string[] | undefined; state: object } } = {};
 
-const handleMessage = (bytes : WebSocket.RawData, uuid : string) => {
-   const data = JSON.parse(bytes.toString());
-   const user = users[uuid];
-   user.state = data;
+// const broadcast = () =>{
+//     Object.keys(connections).forEach(uuid => {
+//         const connection = connections[uuid];
+//         const message = JSON.stringify(users);
+//         connection.send(message);
+//     })
+// }
 
-   if (data.type == "join_room") {
+// const handleMessage = (bytes : WebSocket.RawData, uuid : string) => {
+//    const data = JSON.parse(bytes.toString());
+//    const user = users[uuid];
+//    user.state = data;
+
+//    if (data.type == "join_room") {
        
-   }
-   else if (data.type == "")
+//    }
+//    else if (data.type == "")
 
-   broadcast();
+//    broadcast();
    
-}
+// }
 
-const handleClose = (uuid : string) => {
+// const handleClose = (uuid : string) => {
 
-    delete connections[uuid];
-    delete users[uuid];
+//     delete connections[uuid];
+//     delete users[uuid];
 
-    broadcast();
-}
+//     broadcast();
+// }
 
-wsServer.on("connection",(connection , request)=>{
-    const {username} = url.parse(request.url as string, true).query;
-    const protocol = request.headers['sec-websocket-protocol'];
-    console.log("protocol:",protocol);
-    const uuid = uuidv4()
-    console.log(username);
-    console.log(uuid);
+// wsServer.on("connection",(connection , request)=>{
+//     const {username} = url.parse(request.url as string, true).query;
+//     const protocol = request.headers['sec-websocket-protocol'];
+//     console.log("protocol:",protocol);
+//     const uuid = uuidv4()
+//     console.log(username);
+//     console.log(uuid);
 
-    connections[uuid] = connection;
-    users[uuid] = {
-        username,
-        state : { }
-    }
+//     connections[uuid] = connection;
+//     users[uuid] = {
+//         username,
+//         state : { }
+//     }
 
     
-    server.on('upgrade', (req, socket, head) => {
-    const protocols = req.headers['sec-websocket-protocol']; 
-    const selected = protocols?.split(',').map(p => p.trim()).includes('json') ? 'json' : null;
-      wsServer.handleUpgrade(req, socket, head, (ws) => {
-      ws.protocol = selected as string;
-      wsServer.emit('connection', ws, req);
+//     server.on('upgrade', (req, socket, head) => {
+//     const protocols = req.headers['sec-websocket-protocol']; 
+//     const selected = protocols?.split(',').map(p => p.trim()).includes('json') ? 'json' : null;
+//       wsServer.handleUpgrade(req, socket, head, (ws) => {
+//       ws.protocol = selected as string;
+//       wsServer.emit('connection', ws, req);
 
-    socket.write(`HTTP/1.1 101 Switching Protocols\r\n` +
-        `Upgrade: websocket\r\n` +
-        `Connection: Upgrade\r\n` +
-        `Sec-WebSocket-Protocol: ${selected}\r\n` +
-        `\r\n`);
-  });
-    });
+//     socket.write(`HTTP/1.1 101 Switching Protocols\r\n` +
+//         `Upgrade: websocket\r\n` +
+//         `Connection: Upgrade\r\n` +
+//         `Sec-WebSocket-Protocol: ${selected}\r\n` +
+//         `\r\n`);
+//   });
+//     });
 
-    connection.on("message",message => handleMessage(message,uuid));
-    connection.on("close",()=>handleClose(uuid));
-})
+//     connection.on("message",message => handleMessage(message,uuid));
+//     connection.on("close",()=>handleClose(uuid));
+// })
 
 const port = 8000
 
